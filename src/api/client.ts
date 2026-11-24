@@ -547,7 +547,9 @@ export function cancelShowcase(
  * Fire-and-forget cancel sent while the page unloads (pagehide/beforeunload).
  * `keepalive` lets the request outlive the tab; it carries the same bearer
  * token as every other API call, or a token-protected server rejects it and
- * the session keeps running.
+ * the session keeps running. The iOS shell routes this through CapacitorHttp,
+ * whose native layer ignores `keepalive`: the request is still dispatched, but
+ * it gets no guarantee once the app is suspended.
  */
 export function cancelShowcaseBeacon(id: string, sessionId: string): void {
   const url = `${apiBase()}/api/sparks/${encodeURIComponent(id)}/llm/showcase/${encodeURIComponent(sessionId)}`;

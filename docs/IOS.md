@@ -36,7 +36,9 @@ device. The WebSocket is not affected either: WebSockets were never bound by
 CORS, and the token still travels as `?token=`.
 
 The cost is that the app is not a browser: a redirect or a streaming response
-would behave differently natively. sparkDash has neither today, and
+would behave differently natively, and `keepalive` — used by the fire-and-forget
+showcase cancel — is ignored by the native layer, so that one request gets no
+guarantee after iOS suspends the app. sparkDash has neither today, and
 `src/ios/capacitorConfig.test.ts` fails if this switch is ever dropped.
 
 ## Requirements
