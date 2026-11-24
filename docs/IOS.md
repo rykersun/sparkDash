@@ -76,6 +76,11 @@ Enter the server address, and the token if your server uses one, then **Connect*
 The address and token are stored on the device; the app reloads into the
 dashboard.
 
+On the first attempt to reach a local or VPN address, iOS also asks whether
+sparkDash may access the local network. Allow it — without the permission the
+request is refused and the app can only say the server is unreachable. If it was
+denied, re-enable it under **Settings → sparkDash → Local Network**.
+
 To point the app at a different server later, open **Settings → Server address →
 Change server**. That clears the stored address and returns to the connect screen.
 

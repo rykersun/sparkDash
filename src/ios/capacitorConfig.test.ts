@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import config from "../../capacitor.config.json";
 
 /**
@@ -24,5 +26,27 @@ describe("capacitor.config.json", () => {
 
   it("keeps the app id the iOS project was generated with", () => {
     expect(config.appId).toBe("com.rykersun.sparkdash");
+  });
+});
+
+/**
+ * iOS 14+ gates requests to local-network addresses behind a permission prompt
+ * and refuses them without `NSLocalNetworkUsageDescription` — silently, so the
+ * connect screen only ever says "unreachable". The address a user enters is
+ * exactly a local-network address (RFC 1918 on a LAN, 100.64/10 through
+ * Tailscale), so the reason string is part of the feature, not decoration.
+ * `NSAllowsArbitraryLoads` stays off: the supported path is HTTPS behind
+ * Tailscale Serve or an authenticating reverse proxy.
+ */
+const plist = readFileSync(resolve(process.cwd(), "ios/App/App/Info.plist"), "utf8");
+
+describe("ios/App/App/Info.plist", () => {
+  it("explains why the app asks for local network access", () => {
+    expect(plist).toContain("<key>NSLocalNetworkUsageDescription</key>");
+  });
+
+  it("keeps ATS strict: local networking only, no arbitrary loads", () => {
+    expect(plist).toContain("<key>NSAllowsLocalNetworking</key>");
+    expect(plist).not.toContain("NSAllowsArbitraryLoads");
   });
 });

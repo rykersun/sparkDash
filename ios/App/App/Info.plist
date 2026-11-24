@@ -29,6 +29,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>sparkDash opens the dashboard server address you enter. When that address is on your local network (or reachable through a VPN such as Tailscale), iOS asks for this permission before the app may send requests to it.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
