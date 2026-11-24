@@ -18,6 +18,27 @@ typo fails on the connect screen instead of showing a dashboard that never
 connects. The token field is optional and only needed when the server sets
 `SPARKDASH_TOKEN`.
 
+## Why requests go through the native stack
+
+The bundled UI is served from the app's own origin, `capacitor://localhost`, so
+every request to your server is cross-origin. sparkDash answers only its own
+origin and never sends `Access-Control-Allow-Origin` — in a browser that is
+exactly right, because the UI and the API share one origin behind the proxy. In
+an app shell it means WebKit would block every `/api/*` response with a CORS
+error, and the connect screen would fail on a correct address.
+
+`capacitor.config.json` therefore enables **CapacitorHttp**, which routes
+`fetch()` through `URLSession` instead of the WebView. Native requests are not
+subject to CORS, and they carry no `Origin` header, so the server's
+DNS-rebinding guard sees them the same way it sees `curl`. Nothing changes on the
+server, and the browser build is unaffected — the plugin only exists on the
+device. The WebSocket is not affected either: WebSockets were never bound by
+CORS, and the token still travels as `?token=`.
+
+The cost is that the app is not a browser: a redirect or a streaming response
+would behave differently natively. sparkDash has neither today, and
+`src/ios/capacitorConfig.test.ts` fails if this switch is ever dropped.
+
 ## Requirements
 
 - A Mac with **Xcode 16 or newer** — the only step that cannot run on the

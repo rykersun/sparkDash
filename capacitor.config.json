@@ -3,6 +3,11 @@
   "appName": "sparkDash",
   "webDir": "dist",
   "backgroundColor": "#0a0c0f",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  },
   "ios": {
     "contentInset": "never",
     "backgroundColor": "#0a0c0f",
