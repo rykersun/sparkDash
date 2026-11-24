@@ -3,13 +3,27 @@ import type { AlertInstance, SparkSnapshot, WsSnapshot } from "../api/types";
 import { ingestSnapshots } from "./metricsStore";
 import { initialActiveId } from "../constants";
 import { fetchAuthStatus, getToken, onTokenChange, reportAuthRequired } from "../api/authToken";
+import { getServerBase, onServerBaseChange } from "../api/baseUrl";
 
 const RECONNECT_DELAY = 2000;
 
-/** Built per connect so a token saved from the dialog is used on the next socket. */
+/**
+ * Built per connect so a token saved from the dialog is used on the next socket,
+ * and so a server address saved in the native app takes effect on reconnect.
+ * With no configured server this is exactly the served origin, which is what a
+ * browser session has always used.
+ */
+export function buildWsUrl(base: string, token: string, origin: Location): string {
+  const query = token ? `?token=${encodeURIComponent(token)}` : "";
+  if (base) {
+    const url = new URL(base);
+    return `${url.protocol === "https:" ? "wss:" : "ws:"}//${url.host}/ws${query}`;
+  }
+  return `${origin.protocol === "https:" ? "wss:" : "ws:"}//${origin.host}/ws${query}`;
+}
+
 function wsUrl(): string {
-  const token = getToken();
-  return `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+  return buildWsUrl(getServerBase(), getToken(), location);
 }
 
 /**
@@ -137,6 +151,17 @@ export function useSnapshot() {
   useEffect(
     () =>
       onTokenChange(() => {
+        disposeSocket();
+        connect();
+      }),
+    [connect, disposeSocket]
+  );
+
+  // Pointing the app at a different server must move the socket too, not keep
+  // streaming the previous host's data under the new address.
+  useEffect(
+    () =>
+      onServerBaseChange(() => {
         disposeSocket();
         connect();
       }),

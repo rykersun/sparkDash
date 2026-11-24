@@ -75,5 +75,20 @@
     "nothingCapped": "未发生更改，{{total}} 台设备中有 0 台设置频率上限{{skipped}}",
     "resultFull": "全速运行 — 已应用于 {{count}}/{{total}} 台设备{{skipped}}{{persistence}}",
     "resultCapped": "频率上限设为 {{mhz}} MHz — 已应用于 {{count}}/{{total}} 台设备{{skipped}}{{persistence}}"
+  },
+  "ios": {
+    "connectTitle": "连接到你的 sparkDash 服务器",
+    "connectHelp": "输入 sparkDash 服务器的 HTTPS 地址。这支 iPhone 必须连得到它：Tailscale Serve 地址，或需要验证的反向代理。",
+    "serverLabel": "服务器地址",
+    "serverPlaceholder": "https://sparkdash.example.ts.net",
+    "tokenLabel": "访问令牌（服务器有设置时才需要）",
+    "tokenPlaceholder": "SPARKDASH_TOKEN",
+    "connect": "连接",
+    "connecting": "正在检查服务器…",
+    "invalidUrl": "这个地址不是有效的 http(s) 网址。",
+    "unreachable": "服务器没有回应。请检查地址，以及 Tailscale 或代理是否已连接。",
+    "notSparkDash": "那个地址有服务回应，但不是 sparkDash 服务器（或令牌不正确）。",
+    "serverHelp": "这个 App 连接的 sparkDash 服务器。更改后会重新加载。",
+    "changeServer": "更改服务器"
   }
 }

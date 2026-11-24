@@ -12,6 +12,8 @@ import { fetchSparks, reorderSparks, fetchSettings, fetchHealth } from "./api/cl
 import { AppSidebar } from "./components/shell/AppSidebar";
 import { MobileTabBar } from "./components/shell/MobileTabBar";
 import { InstallPrompt } from "./components/shell/InstallPrompt";
+import { IosConnectScreen } from "./components/IosConnectScreen";
+import { needsServerSetup } from "./api/baseUrl";
 import { CommandPalette, type PaletteCommand } from "./components/shell/CommandPalette";
 import { openShowcase, showcaseTarget } from "./components/shell/sparkSummary";
 import { AddSparkDialog } from "./components/AddSparkDialog";
@@ -733,8 +735,13 @@ function DashboardApp() {
 }
 
 function App() {
+  // The bundled iOS app has no server of its own: ask for one before any page
+  // mounts. Computed once per load so a stored address is not re-checked on
+  // every render, and every hook below still runs in the same order.
+  const [needsSetup] = useState(() => needsServerSetup());
   const route = useAppRoute();
   useSmoothWheel();
+  if (needsSetup) return <IosConnectScreen />;
   return (
     <>
       {route.mode === "showcase" && route.showcaseSparkId ? (

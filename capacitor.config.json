@@ -1,0 +1,11 @@
+{
+  "appId": "com.rykersun.sparkdash",
+  "appName": "sparkDash",
+  "webDir": "dist",
+  "backgroundColor": "#0a0c0f",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#0a0c0f",
+    "limitsNavigationsToAppBoundDomains": false
+  }
+}

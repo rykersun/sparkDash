@@ -264,5 +264,20 @@
     "nothingCapped": "沒有任何變更 — {{total}} 個節點中有 0 個已設定上限{{skipped}}",
     "resultFull": "完整效能 — {{total}} 個節點中有 {{count}} 個{{skipped}}{{persistence}}",
     "resultCapped": "上限為 {{mhz}} MHz — {{total}} 個節點中有 {{count}} 個{{skipped}}{{persistence}}"
+  },
+  "ios": {
+    "connectTitle": "連線到你的 sparkDash 伺服器",
+    "connectHelp": "輸入 sparkDash 伺服器的 HTTPS 位址。這支 iPhone 必須連得到它：Tailscale Serve 位址，或需要驗證的反向代理。",
+    "serverLabel": "伺服器位址",
+    "serverPlaceholder": "https://sparkdash.example.ts.net",
+    "tokenLabel": "存取權杖（伺服器有設定時才需要）",
+    "tokenPlaceholder": "SPARKDASH_TOKEN",
+    "connect": "連線",
+    "connecting": "正在檢查伺服器…",
+    "invalidUrl": "這個位址不是有效的 http(s) 網址。",
+    "unreachable": "伺服器沒有回應。請檢查位址，以及 Tailscale 或代理是否已連線。",
+    "notSparkDash": "那個位址有服務回應，但不是 sparkDash 伺服器（或權杖不正確）。",
+    "serverHelp": "這個 App 連線的 sparkDash 伺服器。變更後會重新載入。",
+    "changeServer": "變更伺服器"
   }
 }
