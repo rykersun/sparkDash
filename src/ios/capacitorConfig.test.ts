@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import config from "../../capacitor.config.json";
+// Vite's `?raw` import keeps this file free of Node APIs (no `node:fs`, no
+// `process`), the same way `src/components/SparkPage/benchShareCard.test.ts`
+// imports an `.svg` — it type-checks under the project's browser-only
+// `tsconfig.json`, which has no `@types/node` in scope.
+import plist from "../../ios/App/App/Info.plist?raw";
 
 /**
  * The iOS shell loads the bundled UI from `capacitor://localhost`, so every call
@@ -38,8 +41,6 @@ describe("capacitor.config.json", () => {
  * `NSAllowsArbitraryLoads` stays off: the supported path is HTTPS behind
  * Tailscale Serve or an authenticating reverse proxy.
  */
-const plist = readFileSync(resolve(process.cwd(), "ios/App/App/Info.plist"), "utf8");
-
 describe("ios/App/App/Info.plist", () => {
   it("explains why the app asks for local network access", () => {
     expect(plist).toContain("<key>NSLocalNetworkUsageDescription</key>");
