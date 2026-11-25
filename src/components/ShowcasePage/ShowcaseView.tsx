@@ -4,7 +4,7 @@ import { useBenchSpark } from "../bench/useBenchSpark";
 import { SparkChips } from "../bench/SparkChips";
 import { isLlmMonitoringEnabled, isWorkerSpark } from "../../api/sparkRole";
 import { ServerIcon, TerminalIcon } from "../ui/icons";
-import { showcaseUrl } from "../shell/sparkSummary";
+import { showcaseHref } from "../shell/sparkSummary";
 import { ShowcasePage } from "./ShowcasePage";
 
 /** The Showcase as a page of the dashboard: pick a Spark, run it here, or pop it out into its own window. */
@@ -33,7 +33,7 @@ export function ShowcaseView({ sparks }: { sparks: readonly SparkSnapshot[] }) {
           {spark ? (
             <a
               className="btn btn--sm"
-              href={showcaseUrl(spark)}
+              href={showcaseHref(spark)}
               target="_blank"
               rel="noopener noreferrer"
               title={t("view.openTitle")}

@@ -1,5 +1,6 @@
 import type { SparkSnapshot } from "../../api/types";
 import { isWorkerSpark } from "../../api/sparkRole";
+import { getServerBase } from "../../api/baseUrl";
 import { measuredGenerationTps } from "../../shared/llmRate";
 
 /** Live decode tok/s of the first reachable LLM on a Spark, or null. */
@@ -44,6 +45,33 @@ export function showcaseUrl(spark: SparkSnapshot): string {
   return `/showcase/${encodeURIComponent(spark.id)}${q}`;
 }
 
+/**
+ * A showcase path made absolute when the app stores a server URL.
+ *
+ * A relative path only works while it stays inside the WebView. Anything that
+ * leaves it — `window.open`, or an anchor with `target="_blank"`, which
+ * Capacitor hands straight to `UIApplication.open` — resolves the path against
+ * `capacitor://localhost/...`, a scheme no app on the phone can open, so the
+ * control silently does nothing. In the app the absolute server URL is the only
+ * address Safari on the phone can load. In a browser the stored base is empty
+ * and this returns the relative path unchanged.
+ */
+export function absoluteShowcasePath(path: string): string {
+  const base = getServerBase();
+  return base ? `${base}${path}` : path;
+}
+
+/** A showcase link for an anchor or a `_blank` open (see absoluteShowcasePath). */
+export function showcaseHref(spark: SparkSnapshot): string {
+  return absoluteShowcasePath(showcaseUrl(spark));
+}
+
+/** Open a showcase outside the WebView (see absoluteShowcasePath). */
+export function openShowcasePath(path: string) {
+  window.open(absoluteShowcasePath(path), "_blank", "noopener,noreferrer");
+}
+
+/** One Spark's showcase page, opened outside the WebView (see openShowcasePath). */
 export function openShowcase(spark: SparkSnapshot) {
-  window.open(showcaseUrl(spark), "_blank", "noopener,noreferrer");
+  openShowcasePath(showcaseUrl(spark));
 }

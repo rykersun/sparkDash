@@ -277,6 +277,7 @@
     "invalidUrl": "這個位址不是有效的 http(s) 網址。",
     "unreachable": "伺服器沒有回應。請檢查位址，以及 Tailscale 或代理是否已連線。",
     "notSparkDash": "那個位址有服務回應，但不是 sparkDash 伺服器（或權杖不正確）。",
+    "hostRefused": "伺服器拒絕了這個主機名稱。如果 sparkDash 跑在容器裡，請把這個位址的主機名稱加進 SPARKDASH_ALLOWED_HOSTS，然後重新啟動伺服器。",
     "serverHelp": "這個 App 連線的 sparkDash 伺服器。變更後會重新載入。",
     "changeServer": "變更伺服器"
   }

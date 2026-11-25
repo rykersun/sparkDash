@@ -88,6 +88,7 @@
     "invalidUrl": "这个地址不是有效的 http(s) 网址。",
     "unreachable": "服务器没有回应。请检查地址，以及 Tailscale 或代理是否已连接。",
     "notSparkDash": "那个地址有服务回应，但不是 sparkDash 服务器（或令牌不正确）。",
+    "hostRefused": "服务器拒绝了这个主机名。如果 sparkDash 跑在容器里，请把本地址的主机名加进 SPARKDASH_ALLOWED_HOSTS，然后重启服务器。",
     "serverHelp": "这个 App 连接的 sparkDash 服务器。更改后会重新加载。",
     "changeServer": "更改服务器"
   }

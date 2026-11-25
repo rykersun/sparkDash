@@ -28,6 +28,7 @@ import { isLlmIdle } from "../../shared/llmIdle";
 import { formatSince } from "../../shared/formatSince";
 import { measuredGenerationTps } from "../../shared/llmRate";
 import { ConversationList } from "./ConversationList";
+import { openShowcasePath } from "../shell/sparkSummary";
 import { LlmCachePanel } from "./LlmCachePanel";
 
 interface LlmPanelProps {
@@ -180,7 +181,7 @@ function LlmLaunchers({
             if (llmPort) params.set("port", String(llmPort));
             if (modelId) params.set("model", modelId);
             const q = params.toString() ? `?${params.toString()}` : "";
-            window.open(`/showcase/${encodeURIComponent(sparkId)}${q}`, "_blank", "noopener,noreferrer");
+            openShowcasePath(`/showcase/${encodeURIComponent(sparkId)}${q}`);
           }}
           className="btn btn--sm"
         >

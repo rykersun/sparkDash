@@ -102,24 +102,49 @@ export function needsServerSetup(): boolean {
 }
 
 /**
- * Checks that a candidate origin really is a sparkDash server.
- * Returns null on success, or the reason to show the user.
+ * Why a candidate origin was rejected. `detail` carries the server's own
+ * explanation, when it gave one, so the connect screen can show the real cause
+ * instead of guessing.
  */
-export async function probeServer(base: string, token: string): Promise<"invalidUrl" | "unreachable" | "notSparkDash" | null> {
+export interface ServerProbe {
+  problem: "invalidUrl" | "unreachable" | "notSparkDash" | "hostRefused" | null;
+  detail?: string;
+}
+
+/**
+ * Checks that a candidate origin really is a sparkDash server.
+ * Returns `{ problem: null }` on success, or the reason to show the user.
+ */
+export async function probeServer(base: string, token: string): Promise<ServerProbe> {
   const normalized = normalizeServerUrl(base);
-  if (!normalized) return "invalidUrl";
+  if (!normalized) return { problem: "invalidUrl" };
   try {
     const res = await fetch(`${normalized}/api/health`, {
       headers: token.trim() ? { Authorization: `Bearer ${token.trim()}` } : {},
     });
-    if (res.status === 401 || res.status === 403) return "notSparkDash";
-    if (!res.ok) return "unreachable";
+    // A server bound to loopback refuses host names it does not answer to with
+    // 403 and a one-line reason (see `refuse()` in server/auth.js). That is the
+    // usual Tailscale Serve failure — a container has no `tailscale` binary, so
+    // it never learns its own MagicDNS name — and it is fixable by setting
+    // SPARKDASH_ALLOWED_HOSTS. Reporting it as "not a sparkDash server" sends
+    // people off to retype the address and the token instead.
+    if (res.status === 403) {
+      const refused = (await res.json().catch(() => null)) as { error?: unknown } | null;
+      if (refused && typeof refused.error === "string") {
+        return { problem: "hostRefused", detail: refused.error };
+      }
+      // A 403 with no sparkDash explanation comes from something in front of
+      // the server (an authenticating proxy), which is the old case.
+      return { problem: "notSparkDash" };
+    }
+    if (res.status === 401) return { problem: "notSparkDash" };
+    if (!res.ok) return { problem: "unreachable" };
     const body = (await res.json().catch(() => null)) as { version?: unknown } | null;
     // /api/health carries the running package version; anything else is a
     // different service that happens to answer at this address.
-    if (!body || typeof body.version !== "string") return "notSparkDash";
-    return null;
+    if (!body || typeof body.version !== "string") return { problem: "notSparkDash" };
+    return { problem: null };
   } catch {
-    return "unreachable";
+    return { problem: "unreachable" };
   }
 }

@@ -68,6 +68,15 @@
   font-size: 13px;
 }
 
+/* The server's own refusal text, in its language, under the translated summary. */
+.ios-setup-detail {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.85;
+  word-break: break-word;
+}
+
 .ios-setup-submit {
   font: inherit;
   font-weight: 600;

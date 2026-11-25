@@ -19,6 +19,7 @@ export function IosConnectScreen() {
   const [token, setTokenValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [detail, setDetail] = useState<string | null>(null);
 
   const submit = useCallback(
     async (event: React.FormEvent) => {
@@ -26,7 +27,8 @@ export function IosConnectScreen() {
       if (busy) return;
       setBusy(true);
       setError(null);
-      const problem = await probeServer(server, token);
+      setDetail(null);
+      const { problem, detail: serverDetail } = await probeServer(server, token);
       if (problem) {
         // Static keys: the i18n checker rejects keys built at runtime, because a
         // missing catalog entry could otherwise hide behind a variable.
@@ -35,8 +37,13 @@ export function IosConnectScreen() {
             ? t("ios.invalidUrl")
             : problem === "unreachable"
               ? t("ios.unreachable")
-              : t("ios.notSparkDash")
+              : problem === "hostRefused"
+                ? t("ios.hostRefused")
+                : t("ios.notSparkDash")
         );
+        // The server's own sentence names the host it refused and the variable
+        // that fixes it; keep it verbatim next to the translated summary.
+        setDetail(problem === "hostRefused" && serverDetail ? serverDetail : null);
         setBusy(false);
         return;
       }
@@ -86,6 +93,7 @@ export function IosConnectScreen() {
         {error && (
           <p className="ios-setup-error" role="alert">
             {error}
+            {detail && <span className="ios-setup-detail">{detail}</span>}
           </p>
         )}
 

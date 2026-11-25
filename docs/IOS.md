@@ -18,6 +18,24 @@ typo fails on the connect screen instead of showing a dashboard that never
 connects. The token field is optional and only needed when the server sets
 `SPARKDASH_TOKEN`.
 
+### If the app says the server refused the address
+
+That reply comes from sparkDash itself, not from the network. On a loopback bind
+sparkDash answers only host names it knows — `localhost`, the machine's own name,
+its Tailscale MagicDNS name, or anything listed in `SPARKDASH_ALLOWED_HOSTS` — and
+refuses the rest with `403 host not allowed`. **A sparkDash running in a container
+has no `tailscale` binary inside it, so it never learns its own MagicDNS name**,
+and a Tailscale Serve address is then refused even though the tunnel is fine. Set
+the name explicitly and restart:
+
+```bash
+SPARKDASH_ALLOWED_HOSTS=sparkdash.<tailnet>.ts.net
+```
+
+Comma-separate several names. A native install with `tailscale` on the same
+machine needs nothing extra. The connect screen shows this reply verbatim under
+its translated summary, so the fix is readable on the phone.
+
 ## Why requests go through the native stack
 
 The bundled UI is served from the app's own origin, `capacitor://localhost`, so
