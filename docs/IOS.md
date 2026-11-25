@@ -111,3 +111,32 @@ The dashboard is already a Progressive Web App. In Safari, open the server's
 address, tap **Share → Add to Home Screen**. That gives a full-screen icon with
 the same UI and no build step — the iOS app mainly adds a bundled shell and a
 stable identity for the stored server address.
+
+## Unsigned .ipa from CI
+
+`.github/workflows/ios.yml` builds the app on a GitHub-hosted macOS runner and
+uploads `sparkDash-unsigned-ipa` as a workflow artifact. It runs on every push to
+`main` that touches the web UI or the iOS project, on any `ci/**` branch, and by
+hand: **Actions -> Build iOS app -> Run workflow**. Artifacts are kept for 14
+days. The repository is public, so these macOS minutes are not billed.
+
+The artifact is **unsigned on purpose**. Xcode needs a signing identity that
+belongs to you, and a certificate in CI secrets would be shared by everyone who
+can read this repository. Sign the download on your own machine:
+
+| Your machine | Tool | Note |
+| --- | --- | --- |
+| Windows or macOS | [Sideloadly](https://sideloadly.io), [AltStore](https://altstore.io) | Free Apple ID; the app expires after 7 days and needs re-signing |
+| macOS with Xcode | open `ios/App/App.xcodeproj`, Run to the device | Same result, no download; see **Distribution** above |
+
+Two things to expect:
+
+- Signing rewrites the bundle id only if you change it; the unsigned build keeps
+  `com.rykersun.sparkdash`, so two differently signed copies cannot coexist on
+  one phone.
+- The unsigned `.ipa` will not install as-is. iOS refuses it — the packaging step
+  only saves you from needing a Mac to *compile*.
+
+If the workflow fails on the SPM dependency (`capacitor-swift-pm`), the log names
+the package and the failed resolution; that is a network flake on the runner far
+more often than a project problem — re-run the job.
