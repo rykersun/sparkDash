@@ -118,8 +118,9 @@ For personal use, Xcode or TestFlight internal testing is the practical route.
 
 - The UI is bundled, but the dashboard still needs the server to be reachable —
   there is no offline mode beyond the app shell.
-- The app is iPhone-only by design; the iPad layout is whatever the web UI does
-  at that width.
+- The app targets iPhone and iPad (`TARGETED_DEVICE_FAMILY = "1,2"` in
+  `ios/App/App.xcodeproj/project.pbxproj`). There is no separate iPad layout:
+  it is the web UI at that width.
 - Plain HTTP is allowed only for local-network testing
   (`NSAllowsLocalNetworking`); a public server must be HTTPS.
 

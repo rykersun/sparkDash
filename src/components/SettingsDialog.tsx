@@ -325,7 +325,7 @@ export function SettingsDialog({ open, onClose, onSaved, onOpenHarness, section 
           {/* Only the bundled iOS app has a server it can point somewhere else;
               the browser is already served by the one it should use. */}
           {isNativeShell() && (
-            <SettingRow title={t("ios.serverLabel")} help={t("ios.serverHelp")}>
+            <SettingRow title={t("ios.serverLabel")} help={t("ios.serverHelp")} stack>
               <div className="set-row__inline">
                 <code className="bench-sheet__hint">{serverBase}</code>
                 <button
