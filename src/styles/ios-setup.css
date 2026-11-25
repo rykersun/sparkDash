@@ -1,0 +1,83 @@
+/* First-run connect screen for the bundled iOS app. */
+
+.ios-setup {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  background: var(--color-base);
+  color: var(--color-text);
+}
+
+.ios-setup-card {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+
+.ios-setup-card h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.ios-setup-help {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ios-setup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-muted-strong);
+}
+
+.ios-setup-field input {
+  font: inherit;
+  font-size: 16px; /* 16px keeps iOS from zooming the page on focus */
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-strong);
+}
+
+.ios-setup-field input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.ios-setup-error {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+  color: var(--color-danger);
+  font-size: 13px;
+}
+
+.ios-setup-submit {
+  font: inherit;
+  font-weight: 600;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.ios-setup-submit:disabled {
+  opacity: 0.6;
+}

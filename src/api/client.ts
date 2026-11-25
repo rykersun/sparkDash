@@ -69,8 +69,10 @@ import type {
   StorageAdvice,
 } from "./types";
 import { authHeaders, reportAuthRequired } from "./authToken";
+import { getServerBase } from "./baseUrl";
 
-const BASE = "";
+/** Origin of the configured server (empty in a browser served by it). */
+const apiBase = (): string => getServerBase();
 
 /** A failed API call. `message` is the server's text; `code` is a machine-readable reason when the route gives one. */
 export class ApiError extends Error {
@@ -94,7 +96,7 @@ export async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> 
   // (OPTIONS) in some proxy setups.
   const headers: Record<string, string> = {};
   if (opts?.body) headers["Content-Type"] = "application/json";
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(`${apiBase()}${path}`, {
     ...opts,
     headers: { ...headers, ...authHeaders(), ...(opts?.headers as Record<string, string> | undefined) },
   });
@@ -545,10 +547,12 @@ export function cancelShowcase(
  * Fire-and-forget cancel sent while the page unloads (pagehide/beforeunload).
  * `keepalive` lets the request outlive the tab; it carries the same bearer
  * token as every other API call, or a token-protected server rejects it and
- * the session keeps running.
+ * the session keeps running. The iOS shell routes this through CapacitorHttp,
+ * whose native layer ignores `keepalive`: the request is still dispatched, but
+ * it gets no guarantee once the app is suspended.
  */
 export function cancelShowcaseBeacon(id: string, sessionId: string): void {
-  const url = `${BASE}/api/sparks/${encodeURIComponent(id)}/llm/showcase/${encodeURIComponent(sessionId)}`;
+  const url = `${apiBase()}/api/sparks/${encodeURIComponent(id)}/llm/showcase/${encodeURIComponent(sessionId)}`;
   void fetch(url, { method: "DELETE", keepalive: true, headers: authHeaders() }).catch(() => {
     /* the page is going away — nothing to report to */
   });
@@ -666,7 +670,7 @@ export interface BatchPowerResult {
 async function runtimeControlFetch(path: string, opts?: RequestInit): Promise<RuntimeControlView> {
   let res: Response;
   try {
-    res = await fetch(`${BASE}${path}`, {
+    res = await fetch(`${apiBase()}${path}`, {
       ...opts,
       headers: {
         ...(opts?.body ? { "Content-Type": "application/json" } : {}),
@@ -1054,7 +1058,7 @@ const teBase = (sparkId: string) => `/api/sparks/${encodeURIComponent(sparkId)}/
 async function teFetch<T>(path: string, opts?: RequestInit): Promise<T> {
   const headers: Record<string, string> = { ...authHeaders() };
   if (opts?.body) headers["Content-Type"] = "application/json";
-  const res = await fetch(`${BASE}${path}`, { ...opts, headers: { ...headers, ...(opts?.headers as Record<string, string> | undefined) } });
+  const res = await fetch(`${apiBase()}${path}`, { ...opts, headers: { ...headers, ...(opts?.headers as Record<string, string> | undefined) } });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}) as Record<string, unknown>);
     throw new ToolEvalApiError(

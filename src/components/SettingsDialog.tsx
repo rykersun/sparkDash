@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { clearServerBase, getServerBase, isNativeShell } from "../api/baseUrl";
 import { isValidTimeZone, listTimeZones } from "../shared/timeZone";
 import { reloadPage } from "../shared/reloadPage";
 import { fetchSettings, updateSettings } from "../api/client";
@@ -131,6 +132,7 @@ const AGE_PRESETS = [
 
 export function SettingsDialog({ open, onClose, onSaved, onOpenHarness, section = null, serverVersion }: SettingsDialogProps) {
   const { t } = useTranslation("settings");
+  const [serverBase, setServerBase] = useState(getServerBase);
   /** The server's own version wins: a stale dist must not report its build as the server's. */
   const displayVersion = serverVersion || packageJson.version;
   const themeLabel = (themeId: ThemeId) => {
@@ -319,6 +321,27 @@ export function SettingsDialog({ open, onClose, onSaved, onOpenHarness, section 
           {loading && <p className="bench-sheet__hint">{t("dialog.loading")}</p>}
 
           <LanguageSelector />
+
+          {/* Only the bundled iOS app has a server it can point somewhere else;
+              the browser is already served by the one it should use. */}
+          {isNativeShell() && (
+            <SettingRow title={t("ios.serverLabel")} help={t("ios.serverHelp")}>
+              <div className="set-row__inline">
+                <code className="bench-sheet__hint">{serverBase}</code>
+                <button
+                  type="button"
+                  className="btn btn--sm btn--ghost"
+                  onClick={() => {
+                    clearServerBase();
+                    setServerBase("");
+                    window.location.reload();
+                  }}
+                >
+                  {t("ios.changeServer")}
+                </button>
+              </div>
+            </SettingRow>
+          )}
 
           <SettingRow
             title={t("appearance.title")}
