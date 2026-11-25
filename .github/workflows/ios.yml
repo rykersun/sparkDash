@@ -1,0 +1,94 @@
+# Builds the iOS app on a GitHub-hosted macOS runner and uploads the result as an
+# unsigned .ipa. Nothing here signs or installs it: the signing certificate stays
+# on your machine, so the artifact is only useful after you sign it yourself with
+# Sideloadly, AltStore or Xcode. See docs/IOS.md -> "Unsigned .ipa from CI".
+name: Build iOS app
+
+on:
+  # Run by hand from the Actions tab when you want a fresh artifact.
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - "ci/**"
+    paths:
+      - "src/**"
+      - "ios/**"
+      - "capacitor.config.json"
+      - "index.html"
+      - "vite.config.ts"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/ios.yml"
+
+permissions:
+  contents: read
+
+# A newer push makes an in-flight build pointless.
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unsigned-ipa:
+    # Xcode 16 lives on the macOS 15 images (Apple silicon).
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      # build the web UI, then copy dist/ into ios/App/App/public and refresh
+      # the generated Capacitor config inside the project.
+      - name: Build the web UI and sync it into the iOS project
+        run: npm run ios:sync
+
+      - name: Check the bundle really landed in the project
+        run: |
+          test -f ios/App/App/public/index.html
+          test -f ios/App/App/capacitor.config.json
+          du -sh ios/App/App/public
+          # CapacitorHttp has to stay on, or WebKit blocks every /api/* with CORS.
+          node -e 'const c=require("./ios/App/App/capacitor.config.json");if(!c.plugins?.CapacitorHttp?.enabled)throw new Error("CapacitorHttp is off in the generated config");console.log("appId",c.appId,"webDir",c.webDir)'
+
+      - name: Archive without signing
+        run: |
+          xcodebuild -version
+          xcodebuild archive \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/sparkDash.xcarchive" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Package the .app as an unsigned .ipa
+        run: |
+          APP="$RUNNER_TEMP/sparkDash.xcarchive/Products/Applications/App.app"
+          test -d "$APP" || { echo "no App.app in the archive"; exit 1; }
+          test -f "$APP/Info.plist" || { echo "App.app has no Info.plist"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/Payload/App.app"
+          # An unsigned build should carry no code signature at all.
+          rm -rf "$RUNNER_TEMP/Payload/App.app/_CodeSignature"
+          cd "$RUNNER_TEMP"
+          zip -qry sparkDash-unsigned.ipa Payload
+          ls -lh sparkDash-unsigned.ipa
+          /usr/bin/codesign -dv "$RUNNER_TEMP/Payload/App.app" 2>&1 || echo "unsigned (expected)"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sparkDash-unsigned-ipa
+          path: ${{ runner.temp }}/sparkDash-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
