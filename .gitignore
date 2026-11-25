@@ -38,6 +38,7 @@ docs/
 !/docs/
 /docs/*
 !/docs/I18N-COVERAGE.md
+!/docs/IOS.md
 mockups/
 PLAN.md
 tetris.html
@@ -61,7 +62,10 @@ config/*.json.*.tmp
 __pycache__/
 *.pyc
 
-# Keep only the unified localization inventory under version control.
+# Keep only the localization inventory and the iOS guide under version control.
+# (Both are tracked already; the whitelist keeps `git add docs/` working
+# without -f if they are ever re-added.)
 !/docs/
 /docs/*
 !/docs/I18N-COVERAGE.md
+!/docs/IOS.md

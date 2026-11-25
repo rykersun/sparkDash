@@ -88,6 +88,7 @@
     "invalidUrl": "That address is not a valid http(s) URL.",
     "unreachable": "The server did not answer. Check the address, and that Tailscale or your proxy is connected.",
     "notSparkDash": "Something answered there, but it is not a sparkDash server (or the token is wrong).",
+    "hostRefused": "The server refused this host name. If sparkDash runs in a container, set SPARKDASH_ALLOWED_HOSTS to this address's host name and restart it.",
     "serverHelp": "The sparkDash server this app talks to. Changing it reloads the app.",
     "changeServer": "Change server"
   }
